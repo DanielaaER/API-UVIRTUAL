@@ -10,6 +10,8 @@ from routes.horarioAula import horarioAulaRouter
 
 from routes.bitacora import bitacoraRouter
 
+form routes.archivo import archivosRouter
+
 from dotenv import load_dotenv
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,8 +49,8 @@ app.include_router(horarioAulaRouter, tags=["Aula"])
 
 
 app.include_router(bitacoraRouter, tags=["Bitacoras"])
-app.include_router(horarioAulaRouter, tags=["Aula"])
+app.include_router(archivosRouter, tags=["Archivos"])
 
 if __name__ == "__main__":
-    # uvicorn.run(app, port=8080, host="0.0.0.0")
-    uvicorn.run(app, port=8080, host="127.0.0.1")
+    uvicorn.run(app, port=2002, host="0.0.0.0")
+    #uvicorn.run(app, port=2000, host="127.0.0.1")

@@ -158,7 +158,14 @@ def clases_ingresar_al_sistema(estudiantes_auth: EstudianteAuth):
                             new_edificio=Edificio
                             new_edificio.nombre = detalles["general"]["edificio"]
                             new_edificio.facultad=detalles["general"]["escuela"]
-                            new_edificio.campus=detalles["detalles"]["campus"]
+
+
+                            if (detalles["detalles"].get("campus")) is not None:
+                                new_edificio.campus = str(
+                                    detalles["detalles"]["campus"])
+                            else:
+                                new_edificio.campus = "IXTACZOQUITLÁN"
+
                             print(new_edificio)
                             conn.execute(edificios.insert().values(
                                 nombre=new_edificio.nombre,
@@ -167,6 +174,7 @@ def clases_ingresar_al_sistema(estudiantes_auth: EstudianteAuth):
                             ))
                             conn.commit()
                             edif = conn.execute(edificios.select().where(edificios.c.nombre == detalles["general"]["edificio"])).first()
+                        
                         print("__EDIFICIO")
                         print(edif)
                         print(edif.id)
@@ -200,10 +208,20 @@ def clases_ingresar_al_sistema(estudiantes_auth: EstudianteAuth):
                             new_clase.nrc = nrc
                             new_clase.nombre = clase
                             new_clase.academico = detalles["general"]["acad"]
-                            new_clase.facultad = detalles["general"]["escuela"]
+
+                            if (detalles["detalles"].get("escuela")) is not None:
+                                escuela = detalles["detalles"]["escuela"]
+                            else:
+                                escuela = "Fac Estadistica E Informatica"
+
+                            new_clase.facultad = escuela
+
                             if (detalles["detalles"].get("campus")) is not None:
                                 new_clase.campus = str(
                                     detalles["detalles"]["campus"])
+                            else:
+                                new_clase.campus = "IXTACZOQUITLÁN"
+
                             new_clase.edificio = str(
                                 detalles["general"]["edificio"])
 
@@ -230,18 +248,6 @@ def clases_ingresar_al_sistema(estudiantes_auth: EstudianteAuth):
                             conn.commit()
                             logging.info(
                                 f"Clase {new_clase.nombre} creada correctamente")
-
-                            print("guardar horario :)")
-                            result = conn.execute(estudiantes.select().where(
-                                estudiantes.c.matricula == estudiantes_auth.matricula)).first()
-                            id_estudiante = result.id
-                            result = conn.execute(clases.select().where(
-                                clases.c.nrc == nrc)).first()
-                            id_clase = result.id
-                            result = conn.execute(horarioEstudiantes.insert().values(
-                                id_estudiante=id_estudiante,
-                                id_clase=id_clase
-                            ))
                             print("guardar aula :)")
                             conn.commit()
                                 
@@ -255,6 +261,20 @@ def clases_ingresar_al_sistema(estudiantes_auth: EstudianteAuth):
                                 id_aula=result.id,
                                 id_clase= id_clase))
                             conn.commit()
+
+                        print("guardar horario :)")
+                        result = conn.execute(estudiantes.select().where(
+                            estudiantes.c.matricula == estudiantes_auth.matricula)).first()
+                        id_estudiante = result.id
+                        result = conn.execute(clases.select().where(
+                            clases.c.nrc == nrc)).first()
+                        id_clase = result.id
+                        result = conn.execute(horarioEstudiantes.select().where(horarioEstudiantes.c.id_clase==id_clase and horarioEstudiantes.c.id_estudiante == id_estudiante))
+                        if (result == None):
+                            result = conn.execute(horarioEstudiantes.insert().values(
+                                id_estudiante=id_estudiante,
+                                id_clase=id_clase
+                            ))
 
                     return {
                         "status": 200,
